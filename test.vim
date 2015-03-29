@@ -24,7 +24,7 @@ endfunction
 
 function! s:suite.big_add()
   call s:assert.equals(BigAdd(StringToBigint("0"), StringToBigint("0")), StringToBigint("0"))
-  call s:assert.equals(BigAdd(StringToBigint("99999999"), StringToBigint("1")), StringToBigint("100000000"))
+  call s:assert.equals(BigAdd(StringToBigint("9999999999999999"), StringToBigint("1")), StringToBigint("10000000000000000"))
   call s:assert.equals(BigAdd(StringToBigint("-1"), StringToBigint("999")), StringToBigint("998"))
   call s:assert.equals(BigAdd(StringToBigint("-1000"), StringToBigint("-1234")), StringToBigint("-2234"))
   call s:assert.equals(BigAdd(StringToBigint("-123456789"), StringToBigint("111111111")), StringToBigint("-12345678"))

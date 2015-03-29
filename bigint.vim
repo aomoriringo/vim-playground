@@ -110,15 +110,20 @@ function! BigAbsadd(a,b)
     let l:addend_idx = l:addend_len-i-1
 
     if l:addend_idx >= 0
-      let l:tmp = l:res.num[l:res_idx] + l:addend.num[l:addend_idx] + l:carry
-      if l:tmp >= g:nodeMaxNum
-        let l:carry = 1
-        let l:tmp -= g:nodeMaxNum
-      else
-        let l:carry = 0
-      endif
-      let l:res.num[l:res_idx] = l:tmp
+      let l:tmp_add = l:addend.num[l:addend_idx]
+    else
+      let l:tmp_add = 0
     endif
+
+    let l:tmp = l:res.num[l:res_idx] + l:tmp_add + l:carry
+
+    if l:tmp >= g:nodeMaxNum
+      let l:carry = 1
+      let l:tmp -= g:nodeMaxNum
+    else
+      let l:carry = 0
+    endif
+    let l:res.num[l:res_idx] = l:tmp
   endfor
 
   if l:carry > 0
