@@ -49,7 +49,7 @@ function! BigCompare(a,b)
   if a:a.sign != a:b.sign
     return (a:a.sign == 1) ? 1 : -1
   endif
-  return BigAbscompare(a:a,a:b)
+  return BigAbscompare(a:a,a:b) * a:a.sign
 endfunction
 
 function! BigAbscompare(a,b)

@@ -13,9 +13,11 @@ endfunction
 
 function! s:suite.big_compare()
   call s:assert.equals(BigCompare(StringToBigint("0"), StringToBigint("0")), 0)
-  call s:assert.equals(BigCompare(StringToBigint("123"), StringToBigint("123")), 0)
+  call s:assert.equals(BigCompare(StringToBigint("1"), StringToBigint("1")), 0)
+  call s:assert.equals(BigCompare(StringToBigint("-1"), StringToBigint("-1")), 0)
   call s:assert.equals(BigCompare(StringToBigint("1234567890"), StringToBigint("1")), 1)
   call s:assert.equals(BigCompare(StringToBigint("-1234567890"), StringToBigint("-1234567890")), 0)
+  call s:assert.equals(BigCompare(StringToBigint("-1"), StringToBigint("-2")), 1)
   call s:assert.equals(BigCompare(StringToBigint("10000000000"), StringToBigint("100")), 1)
   call s:assert.equals(BigCompare(StringToBigint("-1"), StringToBigint("1")), -1)
 endfunction
