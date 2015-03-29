@@ -87,11 +87,12 @@ function! BigAdd(a,b)
 endfunction
 
 function! BigSub(a,b)
-
+  let l:b = deepcopy(a:b)
+  let l:b.sign = l:b.sign*-1
+  return BigAdd(a:a,l:b)
 endfunction
 
 function! BigAbsadd(a,b)
-  " 大きい方に小さい値を足していく
   if BigAbscompare(a:a,a:b) >= 0
     let l:res = deepcopy(a:a)
     let l:addend = a:b
@@ -140,7 +141,33 @@ function! BigAbssub(a,b)
   let l:borrow = 0
 
   for i in range(l:res_len)
+    let l:res_idx = l:res_len-i-1
+    let l:subtrahend_idx = l:subtrahend_len-i-1
+
+    if l:subtrahend_idx >= 0
+      let l:tmp_sub = l:subtrahend.num[l:subtrahend_idx]
+    else
+      let l:tmp_sub = 0
+    endif
+    let l:tmp = l:res.num[l:res_idx] - l:tmp_sub - l:borrow
+
+    if l:tmp < 0
+      let l:borrow = 1
+      let l:tmp += g:nodeMaxNum
+    else
+      let l:borrow = 0
+    endif
+    let l:res.num[l:res_idx] = l:tmp
   endfor
+
+  while len(l:res.num) > 1
+    if l:res.num[0] == 0
+      call remove(l:res.num, 0)
+    else
+      break
+    endif
+  endwhile
+  return l:res
 endfunction
 
 function! BigShift(a,num)

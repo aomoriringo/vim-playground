@@ -22,5 +22,20 @@ function! s:suite.big_compare()
   call s:assert.equals(BigCompare(StringToBigint("-1"), StringToBigint("1")), -1)
 endfunction
 
-function! s:suite.big_abs_compare()
+function! s:suite.big_add()
+  call s:assert.equals(BigAdd(StringToBigint("0"), StringToBigint("0")), StringToBigint("0"))
+  call s:assert.equals(BigAdd(StringToBigint("99999999"), StringToBigint("1")), StringToBigint("100000000"))
+  call s:assert.equals(BigAdd(StringToBigint("-1"), StringToBigint("999")), StringToBigint("998"))
+  call s:assert.equals(BigAdd(StringToBigint("-1000"), StringToBigint("-1234")), StringToBigint("-2234"))
+  call s:assert.equals(BigAdd(StringToBigint("-123456789"), StringToBigint("111111111")), StringToBigint("-12345678"))
 endfunction
+
+function! s:suite.big_sub()
+  call s:assert.equals(BigSub(StringToBigint("0"), StringToBigint("0")), StringToBigint("0"))
+  call s:assert.equals(BigSub(StringToBigint("99999999"), StringToBigint("-1")), StringToBigint("100000000"))
+  call s:assert.equals(BigSub(StringToBigint("-1"), StringToBigint("-999")), StringToBigint("998"))
+  call s:assert.equals(BigSub(StringToBigint("-1000"), StringToBigint("1234")), StringToBigint("-2234"))
+  call s:assert.equals(BigSub(StringToBigint("-123456789"), StringToBigint("-111111111")), StringToBigint("-12345678"))
+endfunction
+
+
