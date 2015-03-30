@@ -1,6 +1,6 @@
 let g:bigint = {'num': [], 'sign': 1}
-let g:nodeMaxDigit = 8
-let g:nodeMaxNum = 100000000
+let g:nodeMaxDigit = 4
+let g:nodeMaxNum = 10000
 
 function! Isdigit(str)
   return match(a:str, '^[+-]\?\d\+$') != -1
@@ -116,13 +116,8 @@ function! BigAbsadd(a,b)
     endif
 
     let l:tmp = l:res.num[l:res_idx] + l:tmp_add + l:carry
-
-    if l:tmp >= g:nodeMaxNum
-      let l:carry = 1
-      let l:tmp -= g:nodeMaxNum
-    else
-      let l:carry = 0
-    endif
+    let l:carry = l:tmp / g:nodeMaxNum
+    let l:tmp = l:tmp % g:nodeMaxNum
     let l:res.num[l:res_idx] = l:tmp
   endfor
 
@@ -175,10 +170,55 @@ function! BigAbssub(a,b)
   return l:res
 endfunction
 
-function! BigShift(a,num)
+function! BigMul(a,b)
+  let l:res = deepcopy(g:bigint)
+  if BigAbscompare(a:a,a:b) >= 0
+    let l:multiplicand = a:a
+    let l:multiplier = a:b
+  else
+    let l:multiplicand = a:b
+    let l:multiplier = a:a
+  endif
+
+  let l:multiplier_len = len(l:multiplier.num)
+  for i in range(l:multiplier_len)
+    let l:multiplier_idx = l:multiplier_len-i-1
+    let l:multiplier_int = l:multiplier.num[l:multiplier_idx]
+
+    let l:tmp = BigAbsmulShortInt(l:multiplicand, l:multiplier_int)
+    for j in range(i)
+      call add(l:tmp.num, 0)
+    endfor
+    let l:res = BigAbsadd(l:res, l:tmp)
+  endfor
+
+  let l:res.sign = a:a.sign * a:b.sign
+  return l:res
 endfunction
 
-function! BigMul(a,b)
+function! BigAbsmulShortInt(a,n)
+  " n < 10000
+  if a:n >= g:nodeMaxNum
+    throw 'too large: '.a:n
+  endif
+
+  let l:res = deepcopy(a:a)
+  let l:res_len = len(l:res.num)
+  let l:carry = 0
+
+  for i in range(res_len)
+    let l:res_idx = l:res_len-i-1
+    let l:tmp = l:res.num[l:res_idx] * a:n + l:carry
+    let l:carry = l:tmp / g:nodeMaxNum
+    let l:tmp = l:tmp % g:nodeMaxNum
+    let l:res.num[l:res_idx] = l:tmp
+  endfor
+
+  if l:carry > 0
+    call insert(l:res.num, l:carry, 0)
+  endif
+  return l:res
+
 endfunction
 
 function! BigDiv(a,b)

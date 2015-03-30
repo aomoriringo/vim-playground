@@ -4,7 +4,7 @@ let s:assert = themis#helper('assert')
 
 function! s:suite.string_to_bigint()
   call s:assert.equals(StringToBigint("123"), {'num': [123], 'sign': 1})
-  call s:assert.equals(StringToBigint("1234567890"), {'num': [12, 34567890], 'sign': 1})
+  call s:assert.equals(StringToBigint("1234567890"), {'num': [12, 3456, 7890], 'sign': 1})
 endfunction
 
 function! s:suite.bigint_to_string()
@@ -38,4 +38,7 @@ function! s:suite.big_sub()
   call s:assert.equals(BigSub(StringToBigint("-123456789"), StringToBigint("-111111111")), StringToBigint("-12345678"))
 endfunction
 
-
+function! s:suite.big_mul()
+  call s:assert.equals(BigMul(StringToBigint("0"), StringToBigint("0")), StringToBigint("0"))
+  call s:assert.equals(BigMul(StringToBigint("1234567890"), StringToBigint("1234567890")), StringToBigint("1524157875019052100"))
+endfunction
