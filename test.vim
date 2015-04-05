@@ -41,4 +41,20 @@ endfunction
 function! s:suite.big_mul()
   call s:assert.equals(BigMul(StringToBigint("0"), StringToBigint("0")), StringToBigint("0"))
   call s:assert.equals(BigMul(StringToBigint("1234567890"), StringToBigint("1234567890")), StringToBigint("1524157875019052100"))
+  call s:assert.equals(BigMul(StringToBigint("12345678"), StringToBigint("9")), StringToBigint("111111102"))
+  call s:assert.equals(BigMul(StringToBigint("1234567890123"), StringToBigint("0")), StringToBigint("0"))
+endfunction
+
+function! s:suite.big_div()
+  call s:assert.equals(BigDiv(StringToBigint("123456780"), StringToBigint("12345678")), StringToBigint("10"))
+  call s:assert.equals(BigDiv(StringToBigint("123"), StringToBigint("123")), StringToBigint("1"))
+  call s:assert.equals(BigDiv(StringToBigint("123456789"), StringToBigint("123456790")), StringToBigint("0"))
+  call s:assert.equals(BigDiv(StringToBigint("519920419074760465703"), StringToBigint("22801763489")), StringToBigint("22801763527"))
+endfunction
+
+function! s:suite.big_mod()
+  call s:assert.equals(BigMod(StringToBigint("123456780"), StringToBigint("12345678")), StringToBigint("0"))
+  call s:assert.equals(BigMod(StringToBigint("123"), StringToBigint("123")), StringToBigint("0"))
+  call s:assert.equals(BigMod(StringToBigint("123456789"), StringToBigint("123456790")), StringToBigint("123456789"))
+  call s:assert.equals(BigMod(StringToBigint("519920419074760465703"), StringToBigint("22801763489")), StringToBigint("0"))
 endfunction

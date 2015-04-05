@@ -1,4 +1,4 @@
-let g:bigint = {'num': [], 'sign': 1}
+let g:bigint = {'num': [0], 'sign': 1}
 let g:nodeMaxDigit = 4
 let g:nodeMaxNum = 10000
 
@@ -27,7 +27,7 @@ function! StringToBigint(str)
 
   let l:tail_nodes = split(l:str[l:head_node_len :], '.\{' . g:nodeMaxDigit . '}\zs')
   let l:bigint.num = map(l:bigint.num + l:tail_nodes, 'str2nr(v:val)')
-  return l:bigint
+  return BigFixForm(l:bigint)
 endfunction
 
 function! BigintToString(bigint)
@@ -124,7 +124,7 @@ function! BigAbsadd(a,b)
   if l:carry > 0
     call insert(l:res.num, l:carry, 0)
   endif
-  return l:res
+  return BigFixForm(l:res)
 endfunction
 
 function! BigAbssub(a,b)
@@ -160,14 +160,7 @@ function! BigAbssub(a,b)
     let l:res.num[l:res_idx] = l:tmp
   endfor
 
-  while len(l:res.num) > 1
-    if l:res.num[0] == 0
-      call remove(l:res.num, 0)
-    else
-      break
-    endif
-  endwhile
-  return l:res
+  return BigFixForm(l:res)
 endfunction
 
 function! BigMul(a,b)
@@ -193,7 +186,80 @@ function! BigMul(a,b)
   endfor
 
   let l:res.sign = a:a.sign * a:b.sign
-  return l:res
+  return BigFixForm(l:res)
+endfunction
+
+function! BigDiv(a,b)
+  if BigCompare(a:b, g:bigint) == 0
+    if BigCompare(a:a, g:bigint) == 0
+      throw 'indeterminate'
+    else
+      throw 'incompatible'
+    endif
+  endif
+
+  let l:res = deepcopy(g:bigint)
+  let l:dividend = deepcopy(a:a)
+  let l:divisor = deepcopy(a:b)
+
+  if BigAbscompare(a:a,a:b) < 0
+    return(l:res)
+  endif
+
+  let l:dividend_len = len(l:dividend.num)
+  let l:divisor_len = len(l:divisor.num)
+
+  let l:extend_nodes_len = l:dividend_len - l:divisor_len
+
+  " 0, 1, 2
+  " # 0
+  " 1 234 567 890
+  " 1 111
+  " # 1
+  " 1 234 567 890
+  "     1 111
+  " # 2
+  " 1 234 567 890
+  "         1 111
+  "
+  let l:part_divisor = l:divisor.num[0] + 1
+  for i in range(l:extend_nodes_len+1)
+    let l:part_dividend_idx = len(l:dividend.num) - l:divisor_len - l:extend_nodes_len + i
+    if l:part_dividend_idx == 0
+      let l:part_dividend = l:dividend.num[0]
+    else " l:part_dividend_idx == 1
+      let l:part_dividend = l:dividend.num[0] * g:nodeMaxNum + l:dividend.num[1]
+    endif
+
+    let l:part_div = StringToBigint(string(l:part_dividend / l:part_divisor))
+    let l:extend_divisor = deepcopy(l:divisor)
+    for j in range(l:extend_nodes_len - i)
+      call add(l:extend_divisor.num, 0)
+    endfor
+
+    let l:tmp = BigMul(l:extend_divisor, l:part_div)
+    let l:dividend = BigAbssub(l:dividend, l:tmp)
+
+    while BigAbscompare(l:dividend, l:extend_divisor) >= 0
+      let l:dividend = BigAbssub(l:dividend, l:extend_divisor)
+      let l:part_div = BigAdd(l:part_div, StringToBigint("1"))
+    endwhile
+
+    for j in range(l:extend_nodes_len - i)
+      call add(l:part_div.num, 0)
+    endfor
+    let l:res = BigAdd(l:res, l:part_div)
+  endfor
+
+  let l:res.sign = a:a.sign * a:b.sign
+  return BigFixForm(l:res)
+endfunction
+
+function! BigMod(a,b)
+  let l:div = BigDiv(a:a,a:b)
+  let l:mul = BigMul(l:div, a:b)
+  let l:res = BigSub(a:a, l:mul)
+  return BigFixForm(l:res)
 endfunction
 
 function! BigAbsmulShortInt(a,n)
@@ -218,11 +284,17 @@ function! BigAbsmulShortInt(a,n)
     call insert(l:res.num, l:carry, 0)
   endif
   return l:res
-
 endfunction
 
-function! BigDiv(a,b)
+function! BigFixForm(a)
+  let l:res = a:a
+  while len(l:res.num) > 1
+    if l:res.num[0] == 0
+      call remove(l:res.num, 0)
+    else
+      break
+    endif
+  endwhile
+  return l:res
 endfunction
 
-function! BigMod(a,b)
-endfunction
