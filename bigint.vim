@@ -6,6 +6,7 @@ function! Isdigit(str)
   return match(a:str, '^[+-]\?\d\+$') != -1
 endfunction
 
+" This function may be renamed 'FromString'
 function! StringToBigint(str)
   if Isdigit(a:str) != 1
     throw 'is not digit: '.a:str
@@ -30,6 +31,7 @@ function! StringToBigint(str)
   return BigFixForm(l:bigint)
 endfunction
 
+" This function may be renamed 'ToString'
 function! BigintToString(bigint)
   let l:str = ''
   let l:str .= string(a:bigint.num[0])
@@ -42,6 +44,7 @@ function! BigintToString(bigint)
   return l:str
 endfunction
 
+" This function may be renamed 'of'
 function! ToBigint(n)
   " n: Number or String or Bigint
   let l:t = type(a:n)
