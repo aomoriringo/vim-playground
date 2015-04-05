@@ -42,17 +42,34 @@ function! BigintToString(bigint)
   return l:str
 endfunction
 
+function! ToBigint(n)
+  " n: Number or String or Bigint
+  let l:t = type(a:n)
+  if l:t == 4 " Dictionary
+    return a:n
+  elseif l:t == 0 " Number
+    return StringToBigint(string(a:n))
+  elseif l:t == 1 " String
+    return StringToBigint(a:n)
+  else
+    throw 'type error'
+  endif
+endfunction
+
 " a > b: return 1
 " a = b: return 0
 " a < b: return -1
 function! BigCompare(a,b)
-  if a:a.sign != a:b.sign
-    return (a:a.sign == 1) ? 1 : -1
+  let l:a = ToBigint(a:a)
+  let l:b = ToBigint(a:b)
+
+  if l:a.sign != l:b.sign
+    return (l:a.sign == 1) ? 1 : -1
   endif
-  return BigAbscompare(a:a,a:b) * a:a.sign
+  return _BigAbscompare(l:a,l:b) * l:a.sign
 endfunction
 
-function! BigAbscompare(a,b)
+function! _BigAbscompare(a,b)
   let l:len_a = len(a:a.num)
   let l:len_b = len(a:b.num)
 
@@ -68,32 +85,38 @@ function! BigAbscompare(a,b)
 endfunction
 
 function! BigAdd(a,b)
-  if a:a.sign == a:b.sign
-    let l:tmp = BigAbsadd(a:a,a:b)
-    let l:tmp.sign = a:a.sign
+  let l:a = ToBigint(a:a)
+  let l:b = ToBigint(a:b)
+
+  if l:a.sign == l:b.sign
+    let l:tmp = _BigAbsadd(l:a,l:b)
+    let l:tmp.sign = l:a.sign
     return l:tmp
   else
-    let l:comp = BigAbscompare(a:a,a:b)
+    let l:comp = _BigAbscompare(l:a,l:b)
     if l:comp >= 0
-      let l:tmp = BigAbssub(a:a,a:b)
-      let l:tmp.sign = a:a.sign
+      let l:tmp = _BigAbssub(l:a,l:b)
+      let l:tmp.sign = l:a.sign
       return l:tmp
     else
-      let l:tmp = BigAbssub(a:b,a:a)
-      let l:tmp.sign = a:b.sign
+      let l:tmp = _BigAbssub(l:b,l:a)
+      let l:tmp.sign = l:b.sign
       return l:tmp
     endif
   endif
 endfunction
 
 function! BigSub(a,b)
-  let l:b = deepcopy(a:b)
+  let l:a = ToBigint(a:a)
+  let l:b = ToBigint(a:b)
+
+  let l:b = deepcopy(l:b)
   let l:b.sign = l:b.sign*-1
-  return BigAdd(a:a,l:b)
+  return BigAdd(l:a,l:b)
 endfunction
 
-function! BigAbsadd(a,b)
-  if BigAbscompare(a:a,a:b) >= 0
+function! _BigAbsadd(a,b)
+  if _BigAbscompare(a:a,a:b) >= 0
     let l:res = deepcopy(a:a)
     let l:addend = a:b
   else
@@ -127,8 +150,8 @@ function! BigAbsadd(a,b)
   return BigFixForm(l:res)
 endfunction
 
-function! BigAbssub(a,b)
-  if BigAbscompare(a:a,a:b) >= 0
+function! _BigAbssub(a,b)
+  if _BigAbscompare(a:a,a:b) >= 0
     let l:res = deepcopy(a:a)
     let l:subtrahend = a:b
   else
@@ -164,13 +187,16 @@ function! BigAbssub(a,b)
 endfunction
 
 function! BigMul(a,b)
+  let l:a = ToBigint(a:a)
+  let l:b = ToBigint(a:b)
+
   let l:res = deepcopy(g:bigint)
-  if BigAbscompare(a:a,a:b) >= 0
-    let l:multiplicand = a:a
-    let l:multiplier = a:b
+  if _BigAbscompare(l:a,l:b) >= 0
+    let l:multiplicand = l:a
+    let l:multiplier = l:b
   else
-    let l:multiplicand = a:b
-    let l:multiplier = a:a
+    let l:multiplicand = l:b
+    let l:multiplier = l:a
   endif
 
   let l:multiplier_len = len(l:multiplier.num)
@@ -178,20 +204,23 @@ function! BigMul(a,b)
     let l:multiplier_idx = l:multiplier_len-i-1
     let l:multiplier_int = l:multiplier.num[l:multiplier_idx]
 
-    let l:tmp = BigAbsmulShortInt(l:multiplicand, l:multiplier_int)
+    let l:tmp = _BigAbsmulShortInt(l:multiplicand, l:multiplier_int)
     for j in range(i)
       call add(l:tmp.num, 0)
     endfor
-    let l:res = BigAbsadd(l:res, l:tmp)
+    let l:res = _BigAbsadd(l:res, l:tmp)
   endfor
 
-  let l:res.sign = a:a.sign * a:b.sign
+  let l:res.sign = l:a.sign * l:b.sign
   return BigFixForm(l:res)
 endfunction
 
 function! BigDiv(a,b)
-  if BigCompare(a:b, g:bigint) == 0
-    if BigCompare(a:a, g:bigint) == 0
+  let l:a = ToBigint(a:a)
+  let l:b = ToBigint(a:b)
+
+  if BigCompare(l:b, g:bigint) == 0
+    if BigCompare(l:a, g:bigint) == 0
       throw 'indeterminate'
     else
       throw 'incompatible'
@@ -199,10 +228,10 @@ function! BigDiv(a,b)
   endif
 
   let l:res = deepcopy(g:bigint)
-  let l:dividend = deepcopy(a:a)
-  let l:divisor = deepcopy(a:b)
+  let l:dividend = deepcopy(l:a)
+  let l:divisor = deepcopy(l:b)
 
-  if BigAbscompare(a:a,a:b) < 0
+  if _BigAbscompare(l:a,l:b) < 0
     return(l:res)
   endif
 
@@ -238,10 +267,10 @@ function! BigDiv(a,b)
     endfor
 
     let l:tmp = BigMul(l:extend_divisor, l:part_div)
-    let l:dividend = BigAbssub(l:dividend, l:tmp)
+    let l:dividend = _BigAbssub(l:dividend, l:tmp)
 
-    while BigAbscompare(l:dividend, l:extend_divisor) >= 0
-      let l:dividend = BigAbssub(l:dividend, l:extend_divisor)
+    while _BigAbscompare(l:dividend, l:extend_divisor) >= 0
+      let l:dividend = _BigAbssub(l:dividend, l:extend_divisor)
       let l:part_div = BigAdd(l:part_div, StringToBigint("1"))
     endwhile
 
@@ -251,18 +280,21 @@ function! BigDiv(a,b)
     let l:res = BigAdd(l:res, l:part_div)
   endfor
 
-  let l:res.sign = a:a.sign * a:b.sign
+  let l:res.sign = l:a.sign * l:b.sign
   return BigFixForm(l:res)
 endfunction
 
 function! BigMod(a,b)
-  let l:div = BigDiv(a:a,a:b)
-  let l:mul = BigMul(l:div, a:b)
-  let l:res = BigSub(a:a, l:mul)
+  let l:a = ToBigint(a:a)
+  let l:b = ToBigint(a:b)
+
+  let l:div = BigDiv(l:a,l:b)
+  let l:mul = BigMul(l:div, l:b)
+  let l:res = BigSub(l:a, l:mul)
   return BigFixForm(l:res)
 endfunction
 
-function! BigAbsmulShortInt(a,n)
+function! _BigAbsmulShortInt(a,n)
   " n < 10000
   if a:n >= g:nodeMaxNum
     throw 'too large: '.a:n
