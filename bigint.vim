@@ -215,10 +215,9 @@ function! BigMul(a,b)
   return BigFixForm(l:res)
 endfunction
 
-function! BigDiv(a,b)
+function! BigDivMod(a,b)
   let l:a = ToBigint(a:a)
   let l:b = ToBigint(a:b)
-
   if BigCompare(l:b, g:bigint) == 0
     if BigCompare(l:a, g:bigint) == 0
       throw 'indeterminate'
@@ -230,14 +229,12 @@ function! BigDiv(a,b)
   let l:res = deepcopy(g:bigint)
   let l:dividend = deepcopy(l:a)
   let l:divisor = deepcopy(l:b)
-
   if _BigAbscompare(l:a,l:b) < 0
-    return(l:res)
+    return [l:res, l:a]
   endif
 
   let l:dividend_len = len(l:dividend.num)
   let l:divisor_len = len(l:divisor.num)
-
   let l:extend_nodes_len = l:dividend_len - l:divisor_len
 
   " 0, 1, 2
@@ -281,17 +278,15 @@ function! BigDiv(a,b)
   endfor
 
   let l:res.sign = l:a.sign * l:b.sign
-  return BigFixForm(l:res)
+  return [BigFixForm(l:res), BigFixForm(l:dividend)]
+endfunction
+
+function! BigDiv(a,b)
+  return BigDivMod(a:a,a:b)[0]
 endfunction
 
 function! BigMod(a,b)
-  let l:a = ToBigint(a:a)
-  let l:b = ToBigint(a:b)
-
-  let l:div = BigDiv(l:a,l:b)
-  let l:mul = BigMul(l:div, l:b)
-  let l:res = BigSub(l:a, l:mul)
-  return BigFixForm(l:res)
+  return BigDivMod(a:a,a:b)[1]
 endfunction
 
 function! _BigAbsmulShortInt(a,n)
