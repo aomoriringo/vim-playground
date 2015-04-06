@@ -1,6 +1,6 @@
-let g:bigint = {'num': [0], 'sign': 1}
-let g:nodeMaxDigit = 4
-let g:nodeMaxNum = 10000
+let s:bigint = {'num': [0], 'sign': 1}
+let s:nodeMaxDigit = 4
+let s:nodeMaxNum = 10000
 
 function! Isdigit(str)
   return match(a:str, '^[+-]\?\d\+$') != -1
@@ -10,7 +10,7 @@ function! FromString(str)
   if Isdigit(a:str) != 1
     throw 'is not digit: '.a:str
   endif
-  let bigint = deepcopy(g:bigint)
+  let bigint = deepcopy(s:bigint)
   let bigint.sign = (a:str[0] == "-") ? -1 : 1
   if match(a:str, '^[+-]') != -1
     let l:str = a:str[1:]
@@ -18,14 +18,14 @@ function! FromString(str)
     let l:str = a:str
   endif
   let l:strlen = len(l:str)
-  let l:nodes = ((l:strlen-1)/g:nodeMaxDigit)+1
-  let l:head_node_len = l:strlen % g:nodeMaxDigit
+  let l:nodes = ((l:strlen-1)/s:nodeMaxDigit)+1
+  let l:head_node_len = l:strlen % s:nodeMaxDigit
 
   if l:head_node_len != 0
     call add(bigint.num, l:str[: l:head_node_len-1])
   endif
 
-  let l:tail_nodes = split(l:str[l:head_node_len :], '.\{' . g:nodeMaxDigit . '}\zs')
+  let l:tail_nodes = split(l:str[l:head_node_len :], '.\{' . s:nodeMaxDigit . '}\zs')
   let l:bigint.num = map(l:bigint.num + l:tail_nodes, 'str2nr(v:val)')
   return BigFixForm(l:bigint)
 endfunction
@@ -34,7 +34,7 @@ function! ToString(bigint)
   let l:str = ''
   let l:str .= string(a:bigint.num[0])
   for node in a:bigint.num[1:]
-    let l:str .= printf('%0'.g:nodeMaxDigit.'d', node)
+    let l:str .= printf('%0'.s:nodeMaxDigit.'d', node)
   endfor
   if a:bigint.sign == -1
     let l:str = '-' .l:str
@@ -139,8 +139,8 @@ function! _BigAbsadd(a,b)
     endif
 
     let l:tmp = l:res.num[l:res_idx] + l:tmp_add + l:carry
-    let l:carry = l:tmp / g:nodeMaxNum
-    let l:tmp = l:tmp % g:nodeMaxNum
+    let l:carry = l:tmp / s:nodeMaxNum
+    let l:tmp = l:tmp % s:nodeMaxNum
     let l:res.num[l:res_idx] = l:tmp
   endfor
 
@@ -176,7 +176,7 @@ function! _BigAbssub(a,b)
 
     if l:tmp < 0
       let l:borrow = 1
-      let l:tmp += g:nodeMaxNum
+      let l:tmp += s:nodeMaxNum
     else
       let l:borrow = 0
     endif
@@ -190,7 +190,7 @@ function! BigMul(a,b)
   let l:a = Of(a:a)
   let l:b = Of(a:b)
 
-  let l:res = deepcopy(g:bigint)
+  let l:res = deepcopy(s:bigint)
   if _BigAbscompare(l:a,l:b) >= 0
     let l:multiplicand = l:a
     let l:multiplier = l:b
@@ -218,15 +218,15 @@ endfunction
 function! BigDivMod(a,b)
   let l:a = Of(a:a)
   let l:b = Of(a:b)
-  if BigCompare(l:b, g:bigint) == 0
-    if BigCompare(l:a, g:bigint) == 0
+  if BigCompare(l:b, s:bigint) == 0
+    if BigCompare(l:a, s:bigint) == 0
       throw 'indeterminate'
     else
       throw 'incompatible'
     endif
   endif
 
-  let l:res = deepcopy(g:bigint)
+  let l:res = deepcopy(s:bigint)
   let l:dividend = deepcopy(l:a)
   let l:divisor = deepcopy(l:b)
   if _BigAbscompare(l:a,l:b) < 0
@@ -254,7 +254,7 @@ function! BigDivMod(a,b)
     if l:part_dividend_idx == 0
       let l:part_dividend = l:dividend.num[0]
     else " l:part_dividend_idx == 1
-      let l:part_dividend = l:dividend.num[0] * g:nodeMaxNum + l:dividend.num[1]
+      let l:part_dividend = l:dividend.num[0] * s:nodeMaxNum + l:dividend.num[1]
     endif
 
     let l:part_div = FromString(string(l:part_dividend / l:part_divisor))
@@ -291,7 +291,7 @@ endfunction
 
 function! _BigAbsmulShortInt(a,n)
   " n < 10000
-  if a:n >= g:nodeMaxNum
+  if a:n >= s:nodeMaxNum
     throw 'too large: '.a:n
   endif
 
@@ -302,8 +302,8 @@ function! _BigAbsmulShortInt(a,n)
   for i in range(res_len)
     let l:res_idx = l:res_len-i-1
     let l:tmp = l:res.num[l:res_idx] * a:n + l:carry
-    let l:carry = l:tmp / g:nodeMaxNum
-    let l:tmp = l:tmp % g:nodeMaxNum
+    let l:carry = l:tmp / s:nodeMaxNum
+    let l:tmp = l:tmp % s:nodeMaxNum
     let l:res.num[l:res_idx] = l:tmp
   endfor
 
