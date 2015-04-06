@@ -6,8 +6,7 @@ function! Isdigit(str)
   return match(a:str, '^[+-]\?\d\+$') != -1
 endfunction
 
-" This function may be renamed 'FromString'
-function! StringToBigint(str)
+function! FromString(str)
   if Isdigit(a:str) != 1
     throw 'is not digit: '.a:str
   endif
@@ -31,8 +30,7 @@ function! StringToBigint(str)
   return BigFixForm(l:bigint)
 endfunction
 
-" This function may be renamed 'ToString'
-function! BigintToString(bigint)
+function! ToString(bigint)
   let l:str = ''
   let l:str .= string(a:bigint.num[0])
   for node in a:bigint.num[1:]
@@ -44,16 +42,15 @@ function! BigintToString(bigint)
   return l:str
 endfunction
 
-" This function may be renamed 'of'
-function! ToBigint(n)
+function! Of(n)
   " n: Number or String or Bigint
   let l:t = type(a:n)
   if l:t == 4 " Dictionary
     return a:n
   elseif l:t == 0 " Number
-    return StringToBigint(string(a:n))
+    return FromString(string(a:n))
   elseif l:t == 1 " String
-    return StringToBigint(a:n)
+    return FromString(a:n)
   else
     throw 'type error'
   endif
@@ -63,8 +60,8 @@ endfunction
 " a = b: return 0
 " a < b: return -1
 function! BigCompare(a,b)
-  let l:a = ToBigint(a:a)
-  let l:b = ToBigint(a:b)
+  let l:a = Of(a:a)
+  let l:b = Of(a:b)
 
   if l:a.sign != l:b.sign
     return (l:a.sign == 1) ? 1 : -1
@@ -88,8 +85,8 @@ function! _BigAbscompare(a,b)
 endfunction
 
 function! BigAdd(a,b)
-  let l:a = ToBigint(a:a)
-  let l:b = ToBigint(a:b)
+  let l:a = Of(a:a)
+  let l:b = Of(a:b)
 
   if l:a.sign == l:b.sign
     let l:tmp = _BigAbsadd(l:a,l:b)
@@ -110,8 +107,8 @@ function! BigAdd(a,b)
 endfunction
 
 function! BigSub(a,b)
-  let l:a = ToBigint(a:a)
-  let l:b = ToBigint(a:b)
+  let l:a = Of(a:a)
+  let l:b = Of(a:b)
 
   let l:b = deepcopy(l:b)
   let l:b.sign = l:b.sign*-1
@@ -190,8 +187,8 @@ function! _BigAbssub(a,b)
 endfunction
 
 function! BigMul(a,b)
-  let l:a = ToBigint(a:a)
-  let l:b = ToBigint(a:b)
+  let l:a = Of(a:a)
+  let l:b = Of(a:b)
 
   let l:res = deepcopy(g:bigint)
   if _BigAbscompare(l:a,l:b) >= 0
@@ -219,8 +216,8 @@ function! BigMul(a,b)
 endfunction
 
 function! BigDivMod(a,b)
-  let l:a = ToBigint(a:a)
-  let l:b = ToBigint(a:b)
+  let l:a = Of(a:a)
+  let l:b = Of(a:b)
   if BigCompare(l:b, g:bigint) == 0
     if BigCompare(l:a, g:bigint) == 0
       throw 'indeterminate'
@@ -260,7 +257,7 @@ function! BigDivMod(a,b)
       let l:part_dividend = l:dividend.num[0] * g:nodeMaxNum + l:dividend.num[1]
     endif
 
-    let l:part_div = StringToBigint(string(l:part_dividend / l:part_divisor))
+    let l:part_div = FromString(string(l:part_dividend / l:part_divisor))
     let l:extend_divisor = deepcopy(l:divisor)
     for j in range(l:extend_nodes_len - i)
       call add(l:extend_divisor.num, 0)
@@ -271,7 +268,7 @@ function! BigDivMod(a,b)
 
     while _BigAbscompare(l:dividend, l:extend_divisor) >= 0
       let l:dividend = _BigAbssub(l:dividend, l:extend_divisor)
-      let l:part_div = BigAdd(l:part_div, StringToBigint("1"))
+      let l:part_div = BigAdd(l:part_div, FromString("1"))
     endwhile
 
     for j in range(l:extend_nodes_len - i)
