@@ -6,6 +6,11 @@ function! Isdigit(str)
   return match(a:str, '^[+-]\?\d\+$') != -1
 endfunction
 
+function! FromInt(n)
+  " TODO: do not use FromString
+  return FromString(string(a:n))
+endfunction
+
 function! FromString(str)
   if Isdigit(a:str) != 1
     throw 'is not digit: '.a:str

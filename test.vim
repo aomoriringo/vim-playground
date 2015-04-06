@@ -8,6 +8,10 @@ function! s:suite.of()
   call s:assert.equals(Of({'num': [123], 'sign': 1}), {'num': [123], 'sign': 1})
 endfunction
 
+function! s:suite.from_int()
+  call s:assert.equals(FromInt(123), {'num': [123], 'sign': 1})
+endfunction
+
 function! s:suite.from_string()
   call s:assert.equals(FromString("123"), {'num': [123], 'sign': 1})
   call s:assert.equals(FromString("1234567890"), {'num': [12, 3456, 7890], 'sign': 1})
