@@ -69,3 +69,13 @@ function! s:suite.big_mod()
   call s:assert.equals(BigMod("123456789", "123456790"), FromString("123456789"))
   call s:assert.equals(BigMod("519920419074760465703", "22801763489"), FromString("0"))
 endfunction
+
+function! s:suite.big_signum()
+  call s:assert.equals(BigSignum("1234567890123"), 1)
+  call s:assert.equals(BigSignum(0), 0)
+  call s:assert.equals(BigSignum(-3), -1)
+endfunction
+
+function! s:suite.big_negate()
+  call s:assert.equals(BigNegate("-1111"), FromString("1111"))
+endfunction

@@ -116,7 +116,7 @@ function! BigSub(a,b)
   let l:b = Of(a:b)
 
   let l:b = deepcopy(l:b)
-  let l:b.sign = l:b.sign*-1
+  let l:b.sign = l:b.sign*(-1)
   return BigAdd(l:a,l:b)
 endfunction
 
@@ -315,6 +315,22 @@ function! _BigAbsmulShortInt(a,n)
   if l:carry > 0
     call insert(l:res.num, l:carry, 0)
   endif
+  return l:res
+endfunction
+
+function! BigSignum(a)
+  let l:a = Of(a:a)
+  if l:a.num == [0]
+    return 0
+  else
+    return l:a.sign
+  endif
+endfunction
+
+function! BigNegate(a)
+  let l:a = Of(a:a)
+  let l:res = deepcopy(l:a)
+  let l:res.sign = l:res.sign*(-1)
   return l:res
 endfunction
 
