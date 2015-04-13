@@ -71,7 +71,7 @@ Mod({elem1}, {elem2})     *bigint-mod()*
 DivMod({elem1}, {elem2})  *bigint-divmod()*
         Return [Div(), Mod()].
 
-Sign({elem})            *bigint-sign()*
+Sign({elem})              *bigint-sign()*
         Return sign of {elem} as -1, 0, or 1.
 
 Neg({elem})               *bigint-neg()*
