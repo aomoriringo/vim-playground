@@ -1,0 +1,80 @@
+*bigint.txt*  Multi precision integer library.
+
+Version: 0.1.0
+Author: aomoriringo <sel0433@gmail.com>
+
+==============================================================================
+CONTENTS       *bigint-contents*
+
+INTRODUCTION      |bigint-introduction|
+INTERFACE         |bigint-interface|
+  Functions       |bigint-functions|
+
+==============================================================================
+INTRODUCTION         *bigint-introduction*
+
+*bigint* is a multi precision integer library.  It provides some functions to
+manipulate multi precision integer.
+
+>
+        source ./bigint.vim
+
+        let x = FromInt(42)
+        let y = FromString("12345678901")
+        let z = BigAdd(x, y)
+        echo ToString(z)
+        " 12345678943
+        let z = BigMul(y, 9753)
+        echo ToString(z)
+        " 120407406321453
+
+        let [div, mod] = BigDivMod(y, "112233")
+        echo ToString(div)
+        " 110000
+        echo ToString(mod)
+        " 48901
+<
+
+==============================================================================
+INTERFACE            *bigint-interface*
+------------------------------------------------------------------------------
+FUNCTIONS            *bigint-functions*
+
+FromInt({number})         *bigint-from_int()*
+        Return a new 'bigint' object from {number}.
+
+FromString({str})         *bigint-from_string()*
+        Return a new 'bigint' object from {str}.
+
+ToString({bigint})        *bigint-to_string()*
+        Return a string from {bigint}.
+
+Compare({elem1}, {elem2}) *bigint-compare()*
+        Compares as signed integer.  Returns -1, 0, or 1.
+
+Add({elem1}, {elem2})     *bigint-add()*
+        Return {elem1} + {elem2}, for {elem1} and {elem2} integer, string or
+        bigint.
+
+Sub({elem1}, {elem2})     *bigint-sub()*
+        Return {elem1} - {elem2}.
+
+Mul({elem1}, {elem2})     *bigint-mul()*
+        Return {elem1} * {elem2}.
+
+Div({elem1}, {elem2})     *bigint-div()*
+        Return {elem1} / {elem2}.
+
+Mod({elem1}, {elem2})     *bigint-mod()*
+        Return {elem1} % {elem2}.
+
+DivMod({elem1}, {elem2})  *bigint-divmod()*
+        Return [Div(), Mod()].
+
+Sign({elem})            *bigint-sign()*
+        Return sign of {elem} as -1, 0, or 1.
+
+Neg({elem})               *bigint-neg()*
+        Return {elem} negated (-{elem}).
+
+==============================================================================
