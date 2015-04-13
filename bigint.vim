@@ -2,7 +2,7 @@ let s:bigint = {'num': [0], 'sign': 1}
 let s:nodeMaxDigit = 4
 let s:nodeMaxNum = 10000
 
-function! Isdigit(str)
+function! _Isdigit(str)
   return match(a:str, '^[+-]\?\d\+$') != -1
 endfunction
 
@@ -12,7 +12,7 @@ function! FromInt(n)
 endfunction
 
 function! FromString(str)
-  if Isdigit(a:str) != 1
+  if _Isdigit(a:str) != 1
     throw 'is not digit: '.a:str
   endif
   let bigint = deepcopy(s:bigint)
@@ -32,7 +32,7 @@ function! FromString(str)
 
   let l:tail_nodes = split(l:str[l:head_node_len :], '.\{' . s:nodeMaxDigit . '}\zs')
   let l:bigint.num = map(l:bigint.num + l:tail_nodes, 'str2nr(v:val)')
-  return BigFixForm(l:bigint)
+  return _BigFixForm(l:bigint)
 endfunction
 
 function! ToString(bigint)
@@ -152,7 +152,7 @@ function! _BigAbsadd(a,b)
   if l:carry > 0
     call insert(l:res.num, l:carry, 0)
   endif
-  return BigFixForm(l:res)
+  return _BigFixForm(l:res)
 endfunction
 
 function! _BigAbssub(a,b)
@@ -188,7 +188,7 @@ function! _BigAbssub(a,b)
     let l:res.num[l:res_idx] = l:tmp
   endfor
 
-  return BigFixForm(l:res)
+  return _BigFixForm(l:res)
 endfunction
 
 function! BigMul(a,b)
@@ -217,7 +217,7 @@ function! BigMul(a,b)
   endfor
 
   let l:res.sign = l:a.sign * l:b.sign
-  return BigFixForm(l:res)
+  return _BigFixForm(l:res)
 endfunction
 
 function! BigDivMod(a,b)
@@ -283,7 +283,7 @@ function! BigDivMod(a,b)
   endfor
 
   let l:res.sign = l:a.sign * l:b.sign
-  return [BigFixForm(l:res), BigFixForm(l:dividend)]
+  return [_BigFixForm(l:res), _BigFixForm(l:dividend)]
 endfunction
 
 function! BigDiv(a,b)
@@ -318,7 +318,7 @@ function! _BigAbsmulShortInt(a,n)
   return l:res
 endfunction
 
-function! BigSignum(a)
+function! BigSign(a)
   let l:a = Of(a:a)
   if l:a.num == [0]
     return 0
@@ -327,14 +327,14 @@ function! BigSignum(a)
   endif
 endfunction
 
-function! BigNegate(a)
+function! BigNeg(a)
   let l:a = Of(a:a)
   let l:res = deepcopy(l:a)
   let l:res.sign = l:res.sign*(-1)
   return l:res
 endfunction
 
-function! BigFixForm(a)
+function! _BigFixForm(a)
   let l:res = a:a
   while len(l:res.num) > 1
     if l:res.num[0] == 0
