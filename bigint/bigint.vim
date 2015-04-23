@@ -242,14 +242,13 @@ function! BigDivMod(a,b)
   let l:divisor_len = len(l:divisor.num)
   let l:extend_nodes_len = l:dividend_len - l:divisor_len
 
-  " 0, 1, 2
-  " # 0
+  " # i=0
   " 1 234 567 890
   " 1 111
-  " # 1
+  " # i=1
   " 1 234 567 890
   "     1 111
-  " # 2
+  " # i=2
   " 1 234 567 890
   "         1 111
   "
